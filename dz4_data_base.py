@@ -1,46 +1,87 @@
 # encoding: utf-8
 __author__ = 'Liubov Penyugalova'
 
-d = {}
+import sys
+import pickle
+import os
 
-action = input('Нажмите 1, чтобы внести данные или 2, чтобы получить информацию')
+os.getcwd()
+
+#----------объявляем переменные
+database     = {}
+file_db      = {}
+user_input   = []
+action       = ''
+
+action = input('Нажмите 1 чтобы внести данные. 2 чтобы получить информацию. 3 чтобы выйти')
 
 #сздаем ввод информации пользователем
 
+while action == '1':
 
-#----------проверяем, отсутствие цифр
-key = input('Введите марку автомобиля:')
-while key.isalpha() == False:
-    key = input('Ошибка ввода. Введите марку автомобиля:')
-    continue
+    #----------проверяем, отсутствие цифр
+    key = input('Введите марку автомобиля:')
+    key2 = key.replace(' ', '')
 
-#----------проверяем, отсутствие букв
-value = input('Введите его мощность:')
-value_to_check = str(value)
-value_to_check = value_to_check.replace(".","")
+    while key2.isalpha() == False:
+        key = input('Ошибка ввода. Введите марку автомобиля:')
+        key2 = key.replace(' ', '')
+        continue
 
-while value_to_check.isnumeric() == False:
-    value = input('Ошибка ввода. Введите мощность автомобиля числами (разделитель - точка):')
+    #----------проверяем, отсутствие букв
+    value = input('Введите его мощность:')
     value_to_check = str(value)
     value_to_check = value_to_check.replace(".","")
-    continue
 
-#-------------создаем tuple со всеми вводами за "сеанс"
+    while value_to_check.isnumeric() == False:
+        value = input('Ошибка ввода. Введите мощность автомобиля числами (разделитель - точка):')
+        value_to_check = str(value)
+        value_to_check = value_to_check.replace(".","")
+        continue
 
-user_input = []
+    #-------------создаем tuple со всеми вводами за "сеанс"
 
-tup = (key, value)
+    tup = (key, value)
+    user_input.append(tup)
+    action       = ''
 
-user_input.append(tup)
-
-#----------заносим в словарик информацию
-d = {
-    key :value
-}
-
-
+    action = input('Нажмите 1 чтобы внести данные. 2 чтобы получить информацию. 3 чтобы выйти')
 
 
+#---------открываем файл, в котором храняться предыдущие данные, внесенные пользователем
+
+def file_open():
+    with open('database.pickle', 'rb') as f:
+        file_db = pickle.load(f, encoding="utf-8")
+    f.close()
+    return file_db
+
+file_open()
+
+#----------выявляем и удаляем совпадения ввода пользователя с уже имеющимся в файле
+
+for n, i in enumerate(user_input):
+    for ii in file_db:
+        if i[0] == ii[0] and i[1] == ii[1]:
+            user_input.pop()
+
+#----------заносим в словарик информацию, проверяя, есть ли она уже в файлике
+for i in user_input:
+    database.update(
+        {i[0]:i[1]}
+    )
+
+#----------дампим словарик с мафынами
+f = open('database.pickle', 'wb')
+pickle.dump(database, f)
+f.close()
+
+
+if action == '3':
+    sys.exit(0)
+
+
+sys.exit(0)
 '''
 »> import pickle
 »> data = {

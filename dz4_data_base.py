@@ -53,70 +53,59 @@ while action == '1':
 
 #---------открываем файл, в котором храняться предыдущие данные, внесенные пользователем
 
-def file_open():
+
+try:
     with open('database.pickle', 'rb') as f:
         file_db = pickle.load(f, encoding="utf-8")
     f.close()
     return file_db
-
-file_db = file_open()
+except FileNotFoundError:
+    file_db = {}
 
 print('Старая БД, которая была в файлике')
 print(file_db)
 
 #----------выявляем и удаляем совпадения ввода пользователя с уже имеющимся в файле
 
-for n, i in enumerate(user_input):                                          #бегаем по списку, сформированную пользователем
-    for ii in file_db:
-        lst = ii[1]                                                         #бегаем по свписку, который уже есть в файле
-        if isinstance(lst, list) == True:                                   #проверяем, является ли значение по ключу списком или нет. Он может быть списком, если у модели авто (key) несколько вариантов мощности (value).
-            for iii in lst:                                                 #бегаем по листам мощности, если таковые имеются
-                if i[0] == ii[0] and i[1] == iii:                           #если и ключ и значение совпадают, удаляем item из списка вводов пользователя
-                        user_input.pop(n)
-        else:
-            if i[0] == ii[0] and i[1] == ii[1]:
-                user_input.pop(n)
+if not file_db:
+    pass
+else:
+    for n, i in enumerate(user_input):                                          #бегаем по списку, сформированную пользователем
+        for ii in file_db:
+            lst = ii[1]                                                         #бегаем по свписку, который уже есть в файле
+            if isinstance(lst, list) == True:                                   #проверяем, является ли значение по ключу списком или нет. Он может быть списком, если у модели авто (key) несколько вариантов мощности (value).
+                for iii in lst:                                                 #бегаем по листам мощности, если таковые имеются
+                    if i[0] == ii[0] and i[1] == iii:                           #если и ключ и значение совпадают, удаляем item из списка вводов пользователя
+                            user_input.pop(n)
+            else:
+                if i[0] == ii[0] and i[1] == ii[1]:
+                    user_input.pop(n)
 
 #----------заносим в словарик информацию + нужна проверка на случай, если пользователь 2 раза сразу ввел сразу два раза одинаковый авто с разной мощностью
 
 if not file_db:
     print(not file_db)
-    for i in user_input:
-        file_db.update({
-            i[0]:i[1]
-            })
+    file_db.update({
+        user_input[0][0]:user_input[0][1]
+        })
 
 file_db_upd = file_db.copy()
-ui = user_input
+
 for i in user_input:
-    for ii in file_db:
-        if i[0] == ii:
-            lst = [file_db.get(ii)]
-            counter = 0
-            if isinstance(lst, list) == True:                                  #проверяем, является ли значение по ключу списком или нет. Он может быть списком, если у модели авто (key) несколько вариантов мощности (value).
-                print('1')
-                for iii in lst:
-                    if i[1] == iii:
-                        pass
-                    else:
-                        counter += 1
-                if counter == len(lst):
-                    lst.append(i[1])
-                    print('lst в counter')
-                    print(lst)
-                    print(counter)
-                    file_db_upd.update({
-                        i[0]:lst
-                    })
-            else:
-                lst.append(i[1])
-                print('lst в не-каунтера')
-                print(lst)
-                file_db_upd.update({
-                    i[0]:lst
-                })
-        else:
-            continue
+    if i[0] in file_db.keys():
+        lst = set(file_db.get(i[0]))
+        lst.add(i[1])
+        file_db.update(
+            {
+                i[0]:lst
+            }
+        )
+    else:
+        file_db.update(
+            {
+                i[0]:i[1]
+            }
+        )
 
 print(file_db_upd)
 

@@ -77,7 +77,7 @@ for n, i in enumerate(user_input):                                          #б�
             if i[0] == ii[0] and i[1] == ii[1]:
                 user_input.pop(n)
 
-#----------заносим в словарик информацию,
+#----------заносим в словарик информацию + нужна проверка на случай, если пользователь 2 раза сразу ввел сразу два раза одинаковый авто с разной мощностью
 
 if not file_db:
     print(not file_db)
@@ -87,23 +87,29 @@ if not file_db:
             })
 
 file_db_upd = file_db.copy()
-
+ui = user_input
 for i in user_input:
     for ii in file_db:
-        if i[0] == ii[0]:
-            lst = [file_db.get(ii[0])]
+        if i[0] == ii:
+            lst = [file_db.get(ii)]
+            counter = 0
             if isinstance(lst, list) == True:                                #проверяем, является ли значение по ключу списком или нет. Он может быть списком, если у модели авто (key) несколько вариантов мощности (value).
                 for iii in lst:
-                    lst_upd = lst
                     if i[1] == iii:
-                        break
-                    lst_upd.append(ii[1])
-                    
+                        pass
+                    else:
+                        counter += 1
+                if counter == len(lst):
+                    lst.append(i[1])
+                    print('lst в counter')
+                    print(lst)
                     file_db_upd.update({
-                        i[0]:lst_upd
+                        i[0]:lst
                     })
             else:
-                lst =[ii[1], i[1]]
+                lst.append(i[1])
+                print('lst в не-каунтера')
+                print(lst)
                 file_db_upd.update({
                     i[0]:lst
                 })
@@ -111,7 +117,7 @@ for i in user_input:
             file_db_upd.update({
                 i[0]:i[1]
             })
-
+print(file_db_upd)
 
 #----------дампим словарик с мафынами
 f = open('database.pickle', 'wb')

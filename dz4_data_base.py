@@ -93,7 +93,8 @@ for i in user_input:
         if i[0] == ii:
             lst = [file_db.get(ii)]
             counter = 0
-            if isinstance(lst, list) == True:                                #проверяем, является ли значение по ключу списком или нет. Он может быть списком, если у модели авто (key) несколько вариантов мощности (value).
+            if isinstance(lst, list) == True:                                  #проверяем, является ли значение по ключу списком или нет. Он может быть списком, если у модели авто (key) несколько вариантов мощности (value).
+                print('1')
                 for iii in lst:
                     if i[1] == iii:
                         pass
@@ -103,6 +104,7 @@ for i in user_input:
                     lst.append(i[1])
                     print('lst в counter')
                     print(lst)
+                    print(counter)
                     file_db_upd.update({
                         i[0]:lst
                     })
@@ -114,9 +116,8 @@ for i in user_input:
                     i[0]:lst
                 })
         else:
-            file_db_upd.update({
-                i[0]:i[1]
-            })
+            continue
+
 print(file_db_upd)
 
 #----------дампим словарик с мафынами

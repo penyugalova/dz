@@ -5,15 +5,18 @@ import sys
 import pickle
 import os
 
-os.getcwd()
+#os.getcwd()
 
 #----------объявляем переменные
 database     = {}
 file_db      = {}
 user_input   = []
+same_keys    = []
 action       = ''
 
 action = input('Нажмите 1 чтобы внести данные. 2 чтобы получить информацию. 3 чтобы выйти')
+#if action != '1' or action != '3':
+#    action = input('Нажмите 1 чтобы внести данные. 2 чтобы получить информацию. 3 чтобы выйти')
 
 #сздаем ввод информации пользователем
 
@@ -56,25 +59,67 @@ def file_open():
     f.close()
     return file_db
 
-file_open()
+file_db = file_open()
+
+print('Старая БД, которая была в файлике')
+print(file_db)
 
 #----------выявляем и удаляем совпадения ввода пользователя с уже имеющимся в файле
 
-for n, i in enumerate(user_input):
+for n, i in enumerate(user_input):                                          #бегаем по списку, сформированную пользователем
     for ii in file_db:
-        if i[0] == ii[0] and i[1] == ii[1]:
-            user_input.pop()
+        lst = ii[1]                                                         #бегаем по свписку, который уже есть в файле
+        if isinstance(lst, list) == True:                                   #проверяем, является ли значение по ключу списком или нет. Он может быть списком, если у модели авто (key) несколько вариантов мощности (value).
+            for iii in lst:                                                 #бегаем по листам мощности, если таковые имеются
+                if i[0] == ii[0] and i[1] == iii:                           #если и ключ и значение совпадают, удаляем item из списка вводов пользователя
+                        user_input.pop(n)
+        else:
+            if i[0] == ii[0] and i[1] == ii[1]:
+                user_input.pop(n)
 
-#----------заносим в словарик информацию, проверяя, есть ли она уже в файлике
+#----------заносим в словарик информацию,
+
+if not file_db:
+    print(not file_db)
+    for i in user_input:
+        file_db.update({
+            i[0]:i[1]
+            })
+
+file_db_upd = file_db.copy()
+
 for i in user_input:
-    database.update(
-        {i[0]:i[1]}
-    )
+    for ii in file_db:
+        if i[0] == ii[0]:
+            lst = [file_db.get(ii[0])]
+            if isinstance(lst, list) == True:                                #проверяем, является ли значение по ключу списком или нет. Он может быть списком, если у модели авто (key) несколько вариантов мощности (value).
+                for iii in lst:
+                    lst_upd = lst
+                    if i[1] == iii:
+                        break
+                    lst_upd.append(ii[1])
+                    
+                    file_db_upd.update({
+                        i[0]:lst_upd
+                    })
+            else:
+                lst =[ii[1], i[1]]
+                file_db_upd.update({
+                    i[0]:lst
+                })
+        else:
+            file_db_upd.update({
+                i[0]:i[1]
+            })
+
 
 #----------дампим словарик с мафынами
 f = open('database.pickle', 'wb')
-pickle.dump(database, f)
+pickle.dump(file_db_upd, f)
 f.close()
+
+print('Новая БД, записавшаяся в файлик')
+print(file_db_upd)
 
 
 if action == '3':

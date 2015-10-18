@@ -9,14 +9,22 @@ import os
 
 #----------объявляем переменные
 database     = {}
-file_db      = {}
 user_input   = []
 same_keys    = []
 action       = ''
 
-action = input('Нажмите 1 чтобы внести данные. 2 чтобы получить информацию. 3 чтобы выйти')
-#if action != '1' or action != '3':
-#    action = input('Нажмите 1 чтобы внести данные. 2 чтобы получить информацию. 3 чтобы выйти')
+#---------открываем файл, в котором храняться предыдущие данные, внесенные пользователем
+try:
+    with open('database.pickle', 'rb') as f:
+        file_db = pickle.load(f, encoding="utf-8")
+    f.close()
+    file_db
+except FileNotFoundError:
+    file_db = {}
+
+
+action = input('Нажмите 1 чтобы внести данные. 2 чтобы увидеть весь список. 3 чтобы найти определенный атомобилью 4 чтобы выйти: ')
+
 
 #сздаем ввод информации пользователем
 
@@ -51,45 +59,20 @@ while action == '1':
     action = input('Нажмите 1 чтобы внести данные. 2 чтобы получить информацию. 3 чтобы выйти')
 
 
-#---------открываем файл, в котором храняться предыдущие данные, внесенные пользователем
 
 
-try:
-    with open('database.pickle', 'rb') as f:
-        file_db = pickle.load(f, encoding="utf-8")
-    f.close()
-    return file_db
-except FileNotFoundError:
-    file_db = {}
+
 
 print('Старая БД, которая была в файлике')
 print(file_db)
 
-#----------выявляем и удаляем совпадения ввода пользователя с уже имеющимся в файле
-
-if not file_db:
-    pass
-else:
-    for n, i in enumerate(user_input):                                          #бегаем по списку, сформированную пользователем
-        for ii in file_db:
-            lst = ii[1]                                                         #бегаем по свписку, который уже есть в файле
-            if isinstance(lst, list) == True:                                   #проверяем, является ли значение по ключу списком или нет. Он может быть списком, если у модели авто (key) несколько вариантов мощности (value).
-                for iii in lst:                                                 #бегаем по листам мощности, если таковые имеются
-                    if i[0] == ii[0] and i[1] == iii:                           #если и ключ и значение совпадают, удаляем item из списка вводов пользователя
-                            user_input.pop(n)
-            else:
-                if i[0] == ii[0] and i[1] == ii[1]:
-                    user_input.pop(n)
-
-#----------заносим в словарик информацию + нужна проверка на случай, если пользователь 2 раза сразу ввел сразу два раза одинаковый авто с разной мощностью
+#----------заносим в словарик информацию
 
 if not file_db:
     print(not file_db)
     file_db.update({
         user_input[0][0]:user_input[0][1]
         })
-
-file_db_upd = file_db.copy()
 
 for i in user_input:
     if i[0] in file_db.keys():
@@ -107,41 +90,41 @@ for i in user_input:
             }
         )
 
-print(file_db_upd)
-
 #----------дампим словарик с мафынами
 f = open('database.pickle', 'wb')
-pickle.dump(file_db_upd, f)
+pickle.dump(file_db, f)
 f.close()
 
-print('Новая БД, записавшаяся в файлик')
-print(file_db_upd)
+
+if action == '2':
+    lst = sorted(file_db)
+    print('Обычная сортировка')
+    for i in lst:
+        print(i, ':', file_db.get(i))
+
+
+#----------------пузырьковая сортировка
+if action == '2':
+    lst = list(file_db.keys())
+    for n1, i in enumerate(lst):
+        for n2, ii in enumerate(lst):
+            if i<ii:
+                lst[n1], lst[n2] = lst[n2], lst[n1]
+    print('Пузырьковая сортировка')
+    for i in lst:
+        print(i, ':', file_db.get(i))
 
 
 if action == '3':
-    sys.exit(0)
+    user_input =
+
 
 
 sys.exit(0)
 '''
-»> import pickle
-»> data = {
-... 'a': [1, 2.0, 3, 4+6j],
-... 'b': ("character string", b"byte string"),
-... 'c': {None, True, False}
-... }
-»>
-»> f = open('c:/temp/data.pickle', 'wb')
-... pickle.dump(data, f)
-...
-»> with open('data.pickle', 'rb') as f:
-... data_new = pickle.load(f)
-
 1. Сделайте простую базу данных:
 
 Пользователь вводит команду: ввести, вывести
-- Ввести - пользователь вводит марку автомобиля и его мощность. Необходимо проверить, что марка состоит только из букв латинского или русского алфавитов. Мощность только из цифр.
-
 - Вывести - выводятся все автомобили - по алфавиту. Сортировку сделать сначала стандартным методом. Затем написать свою версию сортировки циклами.
 
 - вывести пл

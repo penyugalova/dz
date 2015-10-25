@@ -216,6 +216,9 @@ file_db = pickle_open()
 
 functions = {}
 
+
+#2.1  Улучшаем: функции Ввести и Вывести добавляем в словарь следующим образом:
+
 functions = {'action_func'      : action_func,
              'input_data'       : input_data,
              'pickle_open'      : pickle_open,

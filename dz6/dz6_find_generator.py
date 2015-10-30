@@ -16,19 +16,18 @@ def find(root, file_type):
                 if file[(file.index('.')+1):] == file_type:
                     d = os.path.join(key,file)
                     for line in open(d):
-                        yield line
-                        yield file
+                        yield line, file
 
 
 #2. Создать функцию-генератор grep, которая будет получать на вход генератор и фильтровать его по вхождению строки, то есть:
 #На входе генератор и искомая подстрока.
 #По циклу - если в текущей строке найдена подстрока, то по yield выводит имя файла, номер строки и строку.
 
-def grep(find_gen, pattern):
+def grep(find_gen, sub_str):
     line_counter = 0
     for line, file in find_gen:
         line_counter += 1
-        if line.find(pattern) != -1:
+        if line.find(sub_str) != -1:
             yield file, line, line_counter
 
 

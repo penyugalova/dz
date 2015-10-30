@@ -4,73 +4,41 @@ __author__ = 'Liubov Penyugalova'
 
 import os
 
+
 #1. Создайте функцию-генератор find, которая будет заходить в директорию и рекурсивно бежать по всем файлам и папкам, то есть:
-root        = r'C:\test'
-file_type   = 'txt'
-sub_str = 'print'
+#Смотрит содержимое папки.
+#Читает содержимое каждого файла с заданным расширением (например, txt) - по очереди.
 
-def find_generator(rootdir, f_type):
-        #Смотрит содержимое папки
-    for subdir, dirs, files in os.walk(rootdir):
-        for file in files:
-    #Читает содержимое каждого файла с заданным расширением (например, txt) - по очереди.
-            try:
-                rasshirenie = file[(file.index('.')+1):]
-            except:
-                rasshirenie = 'none'
-            if not rasshirenie:
-                rasshirenie = 'none'
-            if rasshirenie == f_type:
-#                try:
-#                    connect = open(os.path.join(subdir, file), 'r')
-#                    text    = connect.read()
-#                    connect.close()
-#                except:
-#                    continue
-
-#            else:
-#                continue
-            yield file
-
-lines = (subdir, dirs, files for subdir, dirs, files in os.walk(rootdir) if file[(file.index('.')+1):] == sub_str)
+def find(root, file_type):
+    for dict in (({subdir:files} ) for subdir, dirs, files in os.walk(root)):
+        for key in dict.keys():
+            for file in dict.get(key):
+                if file[(file.index('.')+1):] == file_type:
+                    d = os.path.join(key,file)
+                    for line in open(d):
+                        yield line
+                        yield file
 
 
 #2. Создать функцию-генератор grep, которая будет получать на вход генератор и фильтровать его по вхождению строки, то есть:
 #На входе генератор и искомая подстрока.
+#По циклу - если в текущей строке найдена подстрока, то по yield выводит имя файла, номер строки и строку.
 
-def grep_generator(find_string, f_generator):
-    #По циклу - если в текущей строке найдена подстрока, то по yield выводит имя файла, номер строки и строку.
-
-    for i in {x:y for y, x in f_generator(root, file_type)}.items():
-        for line in i[1]:
-            #if i[1].find(find_string):
-            if line.find(find_string):
-                #По циклу - если в текущей строке найдена подстрока, то по yield выводит имя файла, номер строки и строку.
-                #файл читается не по строкам (все содер), поэтому затрудняюсь вывести строчку, но имя файла - не вопрос.
-                print(i[0], line)
+def grep(find_gen, pattern):
+    line_counter = 0
+    for line, file in find_gen:
+        line_counter += 1
+        if line.find(pattern) != -1:
+            yield file, line, line_counter
 
 
-#3. Сделайте программу, ищущую с помощью этих 2-ух генераторов строки в файлах с расширением .py, в которых встречается, например,
-# определенный тип исключений "TypeError" или, например, инструкция "def".
-#Собственно программа будет выглядеть из запуска
-grep_generator(sub_str, find_generator)
+#3. Сделайте программу, ищущую с помощью этих 2-ух генераторов строки в файлах с расширением .py,
+# в которых встречается, например, определенный тип исключений "TypeError" или, например, инструкция "def".
 
+root        = r'C:\test'
+file_type   = '.py'
+sub_str = 'def'
 
+for file, line, line_counter in grep(find(root, file_type), sub_str):
+    print(file, line, line_counter)
 
-
-
-def find():
-
-
-
-def grep(pattern, lines):
-    return (line for line in lines if pattern in lines)
-
-
-grep(sub_str, find_generator)
-
-
-
-#                    print(os.path.join(subdir, file))
-
-#Выдает через yield имя файла, номер строки и строку.
